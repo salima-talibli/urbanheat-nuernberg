@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f7f4ef" />
+  <meta name="description" content="UrbanHeat Nürnberg — an interactive, satellite-derived map of road-adjacent land surface temperature on 26 August 2025." />
+  <title>UrbanHeat Nürnberg | Interactive Heat Explorer</title>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoT1GMxoLKd4=" crossorigin="" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top"><span class="brand-mark">UH<span>°</span></span><span>URBANHEAT <b>NÜRNBERG</b></span></a>
+    <nav aria-label="Main navigation"><a href="#explore">Explore map</a><a href="#findings">Districts</a><a href="#methodology">Methodology</a></nav>
+    <span class="edition">LANDSAT 9 <i></i> 26 AUG 2025</span>
+  </header>
+  <main id="top">
+    <section class="hero" aria-label="Introduction">
+      <div class="eyebrow">AN INTERACTIVE GEOSPATIAL STORY <span> /  BAVARIA, GERMANY</span></div>
+      <div class="hero-grid"><div><h1>How Hot Is <em>Nuremberg?</em></h1><p class="intro">Mapping the city's road-adjacent land surface temperatures with Landsat satellite observations and OpenStreetMap streets.</p></div>
+        <div class="hero-fact"><span class="fact-label">OBSERVED CITYWIDE LST*</span><strong>30.68<span>°C</span></strong><small>Pixel-weighted mean of valid observations in the clipped raster</small></div>
+      </div>
+      <div class="hero-foot"><span>01 — THE URBAN HEAT EXPLORER</span><span>SCROLL TO EXPLORE <span aria-hidden="true">↓</span></span></div>
+    </section>
+    <section class="explorer" id="explore" aria-label="Interactive Nuremberg map">
+      <aside class="sidebar">
+        <div class="sidebar-head"><span class="eyebrow">INTERACTIVE ATLAS</span><h2>Surface heat,<br/><em>street by street.</em></h2><p>Click a road segment for an estimate of the surrounding land surface temperature. Switch to district mode to explore neighbourhood summaries.</p></div>
+        <div class="control-block"><label class="control-label">EXPLORE</label><div class="segmented" role="group" aria-label="Map interaction mode"><button id="roads-mode" class="selected" aria-pressed="true">Road segments</button><button id="district-mode" aria-pressed="false">Districts</button></div></div>
+        <div class="control-block"><label class="control-label" for="district-search">FIND A DISTRICT</label><select id="district-search"><option value="">Select a district…</option></select></div>
+        <div class="control-block"><div class="control-row"><span class="control-label">ROAD TEMPERATURE (°C)</span><button class="text-button" id="all-classes">Select all</button></div><div id="class-controls" class="class-controls"></div><p class="fine-print">Colour indicates average satellite-derived LST within a 15 m buffer of each road segment, not measured pavement or air temperature.</p></div>
+        <div class="control-block"><label class="toggle"><input id="osm-toggle" type="checkbox"/><span>Show OpenStreetMap basemap</span></label><label class="toggle"><input id="borders-toggle" type="checkbox" checked/><span>Show district outlines</span></label></div>
+        <div id="selection" class="selection" aria-live="polite"><span class="eyebrow">FEATURE DETAILS</span><h3>Explore the map</h3><p>Click a line or district to see its satellite-derived temperature and supporting observations.</p></div>
+      </aside>
+      <div class="map-wrap"><div id="map" role="application" aria-label="Interactive map of Nuremberg with temperature-coloured roads"></div><div class="map-top-note"><span class="dot"></span><span>LAND SURFACE TEMPERATURE · 26 AUG 2025</span></div><div class="map-bottom-note">Source: USGS Landsat 9 / OpenStreetMap / Stadt Nürnberg</div><div id="loading" class="loading"><div class="spinner"></div><strong>Loading satellite heat data</strong><span id="load-progress">Preparing map…</span></div><div id="load-error" class="load-error" hidden><strong>Map data could not be loaded.</strong><span>Open through a local web server (VS Code Live Server), or a GitHub Pages URL. Opening index.html as a file may block GeoJSON requests.</span></div></div>
+    </section>
+    <section id="findings" class="findings"><div class="section-heading"><div><div class="eyebrow">02 / NEIGHBOURHOOD COMPARISON</div><h2>Where was the surface <em>hottest?</em></h2></div><p>District-wide mean land surface temperature, from one satellite acquisition. These values are not daytime air temperatures or a long-term heat index.</p></div><div class="findings-grid"><div class="ranking-card"><div class="card-label">FIVE HIGHEST DISTRICT MEANS</div><div id="ranking"></div><div class="chart-axis"><span>0°C</span><span>20°C</span><span>40°C</span></div></div><div class="insights"><div class="insight"><span>STATISTICAL DISTRICTS</span><strong>89</strong><p>Neighbourhood summaries from the supplied administrative boundaries.</p></div><div class="insight"><span>ROAD SEGMENTS</span><strong>72,646</strong><p>OpenStreetMap line segments split to a maximum length of 100 m.</p></div><div class="insight"><span>NO ROAD TEMPERATURE AVAILABLE</span><strong>504</strong><p>Segments with zero valid satellite pixels in their 15 m sampling buffers.</p></div></div></div><p class="caution">* District ranking and scene-wide mean are preliminary. The data have been QA-masked, but district observation coverage and thermal uncertainty require additional evaluation before heat-risk conclusions.</p></section>
+    <section class="methodology" id="methodology"><div class="section-heading"><div><div class="eyebrow">03 / ABOUT THE DATA</div><h2>A map built from <em>real observations.</em></h2></div><p>Transparent methods matter as much as compelling cartography.</p></div><div class="method-grid"><article><span class="method-no">01</span><h3>Satellite imagery</h3><p>USGS Landsat 9 Collection 2 Level-2 surface temperature for 26 August 2025, converted to degrees Celsius with the published scale and offset and screened using QA_PIXEL flags.</p></article><article><span class="method-no">02</span><h3>Spatial analysis</h3><p>District zonal statistics and means around OpenStreetMap road segments were calculated in QGIS. Road sampling used 15 m buffers; many sampled values rely on only a few pixels.</p></article><article><span class="method-no">03</span><h3>Interpretation</h3><p>The temperature is <em>land surface temperature</em>, not ambient air or directly measured roadway temperature. The effective thermal resolution is coarser than the road buffers.</p></article></div><div class="credits"><p>Data: USGS / NASA Landsat; OpenStreetMap contributors; Stadt Nürnberg district boundaries. Analysis and web cartography: UrbanHeat Nürnberg.</p><p>Made with QGIS, GeoPandas, Leaflet and JavaScript.</p></div></section>
+  </main>
+  <footer class="footer"><a class="brand" href="#top"><span class="brand-mark">UH<span>°</span></span><span>URBANHEAT NÜRNBERG</span></a><span>AN OPEN GEOSPATIAL PORTFOLIO PROJECT · 2025 DATA</span><a href="#top">BACK TO TOP ↑</a></footer>
+</body>
+</html>
