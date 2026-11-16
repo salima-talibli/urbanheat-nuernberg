@@ -1,62 +1,102 @@
-# UrbanHeat Nürnberg — Interactive Heat Explorer
+# UrbanHeat Nürnberg
 
-A responsive, GitHub Pages–ready interactive web map built from QGIS-derived Landsat 9 land surface temperature (LST) and OpenStreetMap road networks for Nürnberg, Germany.
+**Mapping road-adjacent land surface temperature with Landsat 9 and QGIS**
 
-## What it contains
-- **72,646** road line segments, styled by estimated road-adjacent satellite-derived surface temperature.
-- **89** statistical districts, with mean/min/max/standard deviation from zonal statistics.
-- Interactive road clicks, district exploration, a searchable district selector, class toggles and optional OpenStreetMap basemap.
-- Top-five ranking and transparent methodology/caveats.
-- **504 road segments** lack valid temperature observations and are shown as a separate optional grey class.
+How did surface temperature vary across Nürnberg on 26 August 2025, and which statistical districts had the highest mean values? This project explores those questions using a Landsat 9 satellite observation, OpenStreetMap roads and the city's statistical district boundaries. A QGIS poster presents the citywide pattern, and an interactive Leaflet map lets readers inspect individual road segments and districts.
+
+**[Open the interactive map](https://salima-talibli.github.io/urbanheat-nuernberg/)** · **[View the full-resolution QGIS poster](./UrbanHeat_Nuernberg_Poster.png)**
+
+![QGIS poster showing road-adjacent land surface temperatures across Nürnberg on 26 August 2025 and the five statistical districts with the highest mean temperatures](./UrbanHeat_Nuernberg_Poster.png)
+
+## Results at a glance
+
+The **pixel-weighted mean land surface temperature (LST) was 30.68 °C** across the clipped satellite scene. At district level, Gugelstraße recorded the highest mean at **36.92 °C**, followed by Katzwanger Straße at **36.64 °C**. The difference between them was **0.28 °C**. The ranking is preliminary because district-level coverage and uncertainty checks are still pending.
+
+| Rank | Statistical district | Mean LST on 26 August 2025 |
+| ---: | --- | ---: |
+| 1 | Gugelstraße | 36.92 °C |
+| 2 | Katzwanger Straße | 36.64 °C |
+| 3 | Dianastraße | 36.01 °C |
+| 4 | Höfen | 35.65 °C |
+| 5 | Sandreuth | 35.27 °C |
+
+## How to read the map
+
+The project reports temperature at three spatial scales. Each answers a different question.
+
+| Spatial scale | What the value represents |
+| --- | --- |
+| Clipped satellite scene | The headline **30.68 °C** is the pixel-weighted mean across the clipped scene. It describes the observed surface and uses no population weighting. |
+| Statistical district | Each of the **89 districts** has a mean, minimum, maximum and standard deviation from zonal statistics. The ranking uses the district mean. |
+| Road segment | Each line is coloured by the mean valid LST sampled within a **15 m buffer** around that segment. A grey line indicates that the buffer returned no valid observation. |
+
+The road layer contains **72,646 segments**. Of these, **72,142** have a valid mean LST and **504** have no valid observation. The map uses five temperature classes in °C: **0–25, 25–30, 30–35, 35–40 and 40–50**. Segments with missing values have their own optional grey class.
+
+## Data sources
+
+| Dataset | Provider | Role in the project |
+| --- | --- | --- |
+| Landsat 9 Collection 2 Level-2 surface temperature | USGS / NASA Landsat | Surface temperature observations and pixel quality information for 26 August 2025 |
+| Road network | © OpenStreetMap contributors | Road centreline geometries used to define sampling buffers |
+| Statistical district boundaries | Stadt Nürnberg | Polygon boundaries used to summarise and compare district temperatures |
+
+**Landsat product ID:** `LC09_L2SP_194026_20250826_20250902_02_T1`
+
+## GIS methodology
+
+1. **Prepare the satellite observation.** The Landsat surface temperature product was quality-screened, scaled and converted to degrees Celsius in QGIS. The clipped scene provided the basis for the pixel-weighted headline mean.
+2. **Sample temperatures along roads.** A 15 m buffer was created around each road segment. The mean of the valid LST pixels sampled within the buffer was assigned to the corresponding road line. Segments with `heat_road_count = 0` retained a null `heat_road_mean`.
+3. **Summarise temperature by district.** Zonal statistics produced the mean, minimum, maximum and standard deviation for each statistical district. Districts were ranked by mean LST for the poster and web map.
+4. **Prepare the maps.** The QGIS poster shows the road temperature classes alongside the five highest district means. For the web version, road lines were simplified with a **2 m tolerance in EPSG:25832**, and coordinates were rounded for export. The original analysis geometries and statistics are held in the QGIS GeoPackages.
+
+## Explore the interactive map
+
+- **Click a road segment** to inspect its road-adjacent temperature estimate.
+- **Search for a district** and open its popup to compare the mean with the minimum, maximum and standard deviation.
+- **Toggle temperature classes** to see where warmer segments cluster. Enable the grey class to inspect gaps in observation coverage.
+- **Switch on the OpenStreetMap basemap** to locate a feature relative to streets and landmarks.
+
+## Interpretation and limitations
+
+**Observation date.** The map captures conditions during one satellite overpass on 26 August 2025. Establishing whether a district stays warmer throughout the summer would require observations from additional dates.
+
+**Surface temperature and human exposure.** Landsat measures land surface temperature. Assessing pedestrian heat exposure would require additional information, including near-surface air temperature and shade.
+
+**Road-buffer interpretation.** The effective spatial resolution of the thermal observation is coarser than the 15 m sampling buffer. A pixel can include pavement, roofs, vegetation and other nearby surfaces. Some segments have few valid contributing pixels, and adjacent segments may draw on the same observation.
+
+**Coverage and uncertainty.** Missing road values are preserved explicitly. The percentage of valid observation coverage within each district and the uncertainty of district summaries have yet to be evaluated. Small differences between district means should be interpreted with that limitation in mind.
 
 ## Run locally in VS Code
 
-1. Extract the ZIP to a folder.
-2. Open that folder in **Visual Studio Code**.
-3. Install the **Live Server** extension (if you don't already have it).
-4. Right-click `index.html` and choose **Open with Live Server**.
+1. Open the project folder containing `index.html` in Visual Studio Code.
+2. Install the **Live Server** extension if needed.
+3. Right-click `index.html` and select **Open with Live Server**.
 
-Alternative with Python installed:
+Alternatively, run the following command from the project folder:
 
 ```bash
 python -m http.server 8000
 ```
 
-Then visit `http://localhost:8000/`.
+Open `http://localhost:8000/` in a browser. Use a local server so the browser can load the GeoJSON files through `fetch()`. The road and district data are included in `data/`. An internet connection is needed to load Leaflet from its public CDN and to display the optional OpenStreetMap basemap.
 
-**Do not just double-click `index.html`** — many browsers block `fetch()` requests to local GeoJSON under the `file://` protocol.
+## Repository files
 
-Leaflet is loaded from a public CDN, and the optional OpenStreetMap basemap needs internet access. The road and district data load from the included local `data/` directory.
+| File or folder | Purpose |
+| --- | --- |
+| `index.html` | Main page for the interactive heat explorer |
+| `style.css` | Map layout, typography and responsive styling |
+| `script.js` | Leaflet map, data loading, search, popups and layer controls |
+| `data/districts.geojson` | 89 district polygons with LST summary statistics |
+| `data/roads_*.geojson` | Road segments grouped into five temperature classes and one missing-data class |
+| `UrbanHeat_Nuernberg_Poster.png` | Full-resolution QGIS poster displayed above |
 
-## Publish on GitHub Pages
+## GitHub Pages deployment
 
-1. Create a GitHub repository (e.g. `urbanheat-nuernberg`).
-2. Upload **all files and the entire `data/` folder** to the repository root (don't upload only `index.html`).
-3. In repository **Settings → Pages**, select **Deploy from a branch**, `main`, `/ (root)` and save.
-4. When GitHub finishes deploying, the website URL typically has the pattern `https://YOUR-USERNAME.github.io/urbanheat-nuernberg/`.
-5. Open the URL and check whether all road classes and district popups load.
+Keep `index.html`, `style.css`, `script.js` and the complete `data/` folder at the repository root. In **Settings → Pages**, select **Deploy from a branch**, choose `main` and `/ (root)`, then save. After deployment, open the site and check a road popup and a district popup to confirm that both datasets load. The GeoJSON files total approximately 14 MB, so the first load may take longer on slower connections.
 
-The map contains ~14 MB of GeoJSON. Hosting it as static files is possible, but loading time may vary by device and connection. If you later need faster performance, migrate the roads to vector tiles or PMTiles.
+## Author and attribution
 
-## Scientific caveats
+**Salima Talibli** · GIS analysis and cartography
 
-- Date: **26 August 2025** (single satellite observation), not a seasonal heat average.
-- Source imagery: **USGS Landsat 9 Collection 2 Level-2** surface temperature product; originally QA-screened and scaled to degrees Celsius in the QGIS workflow.
-- **Road line colours represent mean LST sampled within 15 m road buffers**, not an instrument reading of pavement or air temperature.
-- Landsat thermal data has an effective spatial resolution much coarser than the buffer width. Some segments have only a few valid contributing pixels.
-- **504 road segments have missing LST** (`heat_road_mean = NULL`; `heat_road_count = 0`) and are **not** treated as cool.
-- District zonal statistics are shown as preliminary because percentage of valid observation coverage and uncertainty checks have not yet been completed.
-- The `30.68°C` headline is the previously computed pixel-weighted average for the clipped scene; it is not a population-weighted metric.
-- Web geometry coordinates have been rounded and road lines visually simplified by **2 metres** in EPSG:25832 before web export; the original uploaded GeoPackages remain the analysis source of truth.
-
-## Files
-
-- `index.html` — page structure
-- `style.css` — editorial visual style and responsive design
-- `script.js` — Leaflet interactions, loading and map functions
-- `data/districts.geojson` — 89 district polygons with LST summary fields
-- `data/roads_*.geojson` — six groups of road geometries (five temperature classes and one missing category)
-
-## Credits
-
-USGS / NASA Landsat; © OpenStreetMap contributors; Stadt Nürnberg boundaries. Analysis from user-provided QGIS GeoPackage files. Web development: HTML, CSS, JavaScript and Leaflet. Include applicable original municipal/OSM licensing notices in public project metadata.
+Satellite imagery from USGS / NASA Landsat. Road data © OpenStreetMap contributors, available under the [Open Database License](https://www.openstreetmap.org/copyright). Statistical district boundaries from Stadt Nürnberg. The interactive map uses Leaflet, JavaScript, HTML and CSS.
