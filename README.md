@@ -4,9 +4,9 @@
 
 How did surface temperature vary across Nürnberg on 26 August 2025, and which statistical districts had the highest mean values? This project explores those questions using a Landsat 9 satellite observation, OpenStreetMap roads and the city's statistical district boundaries. A QGIS poster presents the citywide pattern, and an interactive Leaflet map lets readers inspect individual road segments and districts.
 
-**[Open the interactive map](https://salima-talibli.github.io/urbanheat-nuernberg/)** · **[View the full-resolution QGIS poster](./UrbanHeat_Nuernberg_Poster.png)**
+**[Open the interactive map](https://salima-talibli.github.io/urbanheat-nuernberg/)** · **[View the full-resolution QGIS poster](./poster/UrbanHeat_Nuernberg_Poster.png)**
 
-![QGIS poster showing road-adjacent land surface temperatures across Nürnberg on 26 August 2025 and the five statistical districts with the highest mean temperatures](./UrbanHeat_Nuernberg_Poster.png)
+![QGIS poster showing road-adjacent land surface temperatures in Nürnberg](./poster/UrbanHeat_Nuernberg_Poster.png)
 
 ## Results at a glance
 
